@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import './App.css';
 import "@trussworks/react-uswds/lib/uswds.css";
 import '@trussworks/react-uswds/lib/index.css';
@@ -26,6 +27,7 @@ import {
 
 function InstructionsPage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const navigate = useNavigate();
 
   const onToggleMobileNav = () => {
     setMobileNavOpen((prevOpen) => !prevOpen);
@@ -59,8 +61,12 @@ function InstructionsPage() {
     </div>
   );
 
+  const handleComplaintTypeClick = () => {
+    navigate('/complaint-type');
+  };
+
   return (
-    <div>
+    <div className="instructions-page">
       <GovBanner />
       
       <Header basic>
@@ -72,21 +78,21 @@ function InstructionsPage() {
             mobileExpanded={mobileNavOpen}
             onToggleMobileNav={onToggleMobileNav}
           >
-            <Button type="button" outline>Register</Button>
+            <Button type="button" outline className="margin-right-2">Register</Button>
             <Button type="button">Login</Button>
           </PrimaryNav>
         </div>
       </Header>
 
-      <GridContainer className="usa-section">
+      <GridContainer className="usa-section padding-y-8">
         <Grid row>
           <Grid col={12}>
-            <h1 className="usa-heading">Administrative Simplification Enforcement and Testing Tool (ASETT)</h1>
-            <hr className="usa-divider" />
+            <h1 className="usa-heading margin-bottom-4">Administrative Simplification Enforcement and Testing Tool (ASETT)</h1>
+            <hr className="usa-divider margin-bottom-5" />
           </Grid>
         </Grid>
 
-        <Grid row gap>
+        <Grid row gap className="margin-bottom-5">
           <Grid col={12}>
             <Alert type="warning" slim headingLevel="h4">
               <strong>Disclaimer:</strong> If you file a complaint without registration, you will not be able to view your
@@ -96,27 +102,35 @@ function InstructionsPage() {
         </Grid>
 
         <Grid row gap>
-          <Grid col={12}>
-            <Card>
-              <CardBody>
-                <p>
+          <Grid col={12} 
+        //   desktop={{ col: 10 }} 
+          className="margin-x-auto">
+            <Card 
+            // className="padding-3"
+            >
+              <CardBody className="padding-y-4 padding-x-3">
+                <p className="margin-bottom-5">
                   The following is the list of steps you will take in order to file a complaint regarding HIPAA Transactions
                   and Code Sets, Unique Identifiers, and/or Operating Rules. If you wish to file a Health Insurance
                   Privacy complaint, please visit the <Link href="https://www.hhs.gov/ocr">Office for Civil Rights (OCR)</Link> website.
                 </p>
 
-                <div className="usa-step-indicator usa-step-indicator--counters-sm">
+                <div className="usa-step-indicator usa-step-indicator--counters-sm margin-top-6 margin-bottom-6 padding-x-2">
                   <StepIndicator centered headingLevel="h4">
-                    <StepIndicatorStep label="Identify the type of HIPAA/ACA complaint" status="complete" />
-                    <StepIndicatorStep label="Provide your contact information" status="current" />
+                    <StepIndicatorStep label="Identify the type of HIPAA/ACA complaint" 
+                    status="current"
+                     />
+                    <StepIndicatorStep label="Provide your contact information" 
+                    // status="current" 
+                    />
                     <StepIndicatorStep label="Identify the Filed Against Entity" />
                     <StepIndicatorStep label="Describe the HIPAA/ACA violation" />
                     <StepIndicatorStep label="Review and Submit" />
                   </StepIndicator>
                 </div>
 
-                <div className="margin-top-4 margin-bottom-4">
-                  <p>
+                <div className="margin-top-6 margin-bottom-6">
+                  <p className="margin-bottom-3">
                     You can review all information entered before submitting your complaint to CMS. Once the complaint
                     is submitted, CMS will review all information and respond to your complaint.
                   </p>
@@ -125,9 +139,9 @@ function InstructionsPage() {
                   </p>
                 </div>
 
-                <div className="display-flex flex-justify-between margin-top-4">
-                  <Button outline type="button">Cancel</Button>
-                  <Button type="button">Complaint Type &gt;</Button>
+                <div className="display-flex flex-justify-end margin-top-6">
+                  <Button outline type="button" className="margin-right-2">Cancel</Button>
+                  <Button type="button" onClick={handleComplaintTypeClick}>Complaint Type</Button>
                 </div>
               </CardBody>
             </Card>

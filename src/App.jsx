@@ -5,6 +5,7 @@ import '@trussworks/react-uswds/lib/index.css';
 import InstructionsPage from './pages/instructions-page';
 import ComplaintType from './pages/complaint-type';
 import ComplainantDetails from './pages/complaint-details';
+
 function App() {
 	return (
 		<Router>
