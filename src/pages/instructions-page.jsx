@@ -5,10 +5,6 @@ import '@trussworks/react-uswds/lib/uswds.css';
 import '@trussworks/react-uswds/lib/index.css';
 import {
 	GovBanner,
-	Header,
-	Title,
-	NavMenuButton,
-	PrimaryNav,
 	Grid,
 	GridContainer,
 	Alert,
@@ -17,68 +13,14 @@ import {
 	StepIndicatorStep,
 	Link,
 	Card,
-	CardHeader,
 	CardBody,
-	CardFooter,
 	Footer,
 	Logo,
 	FooterNav,
 } from '@trussworks/react-uswds';
 
 function InstructionsPage() {
-	const [mobileNavOpen, setMobileNavOpen] = useState(false);
 	const navigate = useNavigate();
-
-	const onToggleMobileNav = () => {
-		setMobileNavOpen((prevOpen) => !prevOpen);
-	};
-
-	const navItems = [
-		<a
-			key="home"
-			className="usa-nav__link"
-			href="#"
-		>
-			<span>Home</span>
-		</a>,
-		<a
-			key="about"
-			className="usa-nav__link"
-			href="#"
-		>
-			<span>About ASETT</span>
-		</a>,
-		<a
-			key="contact"
-			className="usa-nav__link"
-			href="#"
-		>
-			<span>Contact Us</span>
-		</a>,
-		<a
-			key="support"
-			className="usa-nav__link"
-			href="#"
-		>
-			<span>Support</span>
-		</a>,
-	];
-
-	const renderLogo = () => (
-		<div
-			className="usa-logo"
-			id="basic-logo"
-		>
-			<em className="usa-logo__text">
-				<a
-					href="/"
-					title="Home"
-				>
-					ASETT
-				</a>
-			</em>
-		</div>
-	);
 
 	const handleComplaintTypeClick = () => {
 		navigate('/complaint-type');
@@ -88,36 +30,7 @@ function InstructionsPage() {
 		<div className="instructions-page">
 			<GovBanner />
 
-			<Header basic>
-				<div className="width-full">
-					<img
-						src="https://asett.cms.gov/resource/1549656663000/Images/all-purpose-banner-v3.jpg"
-						alt="CMS Logo"
-						style={{ maxHeight: '40px', marginRight: '10px', width: '100%' }}
-					/>
-				</div>
-				<div className="usa-nav-container">
-					{renderLogo()}
-					<NavMenuButton
-						onClick={onToggleMobileNav}
-						label="Menu"
-					/>
-					<PrimaryNav
-						items={navItems}
-						mobileExpanded={mobileNavOpen}
-						onToggleMobileNav={onToggleMobileNav}
-					>
-						<Button
-							type="button"
-							outline
-							className="margin-right-2"
-						>
-							Register
-						</Button>
-						<Button type="button">Login</Button>
-					</PrimaryNav>
-				</div>
-			</Header>
+			<HeaderNavbar />
 
 			<GridContainer className="usa-section padding-y-8">
 				<Grid row>
