@@ -18,6 +18,8 @@ import {
 	Logo,
 	FooterNav,
 } from '@trussworks/react-uswds';
+import HeaderNavbar from './components/HeaderNavbar';
+
 
 function InstructionsPage() {
 	const navigate = useNavigate();
