@@ -1,406 +1,523 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '@trussworks/react-uswds/lib/uswds.css';
+import '@trussworks/react-uswds/lib/index.css';
 import {
-  GovBanner,
-  Header,
-  NavMenuButton,
-  PrimaryNav,
   Grid,
   GridContainer,
-  Button,
-  TextInput,
-  Select,
-  Label,
-  Radio,
-  Alert,
-  Footer,
-  FooterNav
 } from "@trussworks/react-uswds";
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import StepIndicator from '../components/StepIndicator';
+import FormContainer from '../components/FormContainer';
+import ErrorSummary from '../components/ErrorSummary';
+import FormSection from '../components/FormSection';
+import AnonymousSection from '../components/AnonymousSection';
+import FormFieldGroup from '../components/FormFieldGroup';
+import FormNavigation from '../components/FormNavigation';
+import FormApproval from '../components/FormApproval';
+import { FORM_STYLES, FORM_OPTIONS, FORM_STEPS, INITIAL_COMPLAINANT_FORM_DATA } from '../constants/constants';
 
 function ComplainantDetails() {
   const navigate = useNavigate();
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(null);
+  const [formData, setFormData] = useState(INITIAL_COMPLAINANT_FORM_DATA);
+  const [errors, setErrors] = useState({});
+  const [showErrors, setShowErrors] = useState(false);
 
-  const onToggleMobileNav = () => {
-    setMobileNavOpen((prevOpen) => !prevOpen);
+  const { 
+    formSectionStyle,
+    fieldGroupStyle,
+    requiredFieldGroupStyle,
+    labelStyle,
+    radioContainerStyle,
+    radioStyle,
+    errorStyle,
+    buttonContainerStyle,
+    formHeaderStyle,
+    formContainerStyle,
+    formBodyStyle,
+    requiredFieldMarker
+  } = FORM_STYLES;
+
+  const { organizationTypes, states, titleOptions } = FORM_OPTIONS;
+  
+  // Group styles for FormFieldGroup
+  const groupStyles = {
+    default: fieldGroupStyle,
+    required: requiredFieldGroupStyle
   };
 
-  const navItems = [
-    <a key="home" className="usa-nav__link" href="#">
-      <span>Home</span>
-    </a>,
-    <a key="about" className="usa-nav__link" href="#">
-      <span>About ASETT</span>
-    </a>,
-    <a key="contact" className="usa-nav__link" href="#">
-      <span>Contact Us</span>
-    </a>,
-    <a key="support" className="usa-nav__link" href="#">
-      <span>Support</span>
-    </a>,
-  ];
+  useEffect(() => {
+    if (showErrors) {
+      const newErrors = {};
+      
+      if (isAnonymous === null) {
+        newErrors.anonymous = "Please select whether you want to remain anonymous";
+      }
+      
+      if (!formData.orgName) {
+        newErrors.orgName = "Organization name is required";
+      }
+      
+      if (!formData.orgPhone) {
+        newErrors.orgPhone = "Organization phone number is required";
+      }
+      
+      if (!formData.title) {
+        newErrors.title = "Title is required";
+      }
+      
+      if (!formData.firstName) {
+        newErrors.firstName = "First name is required";
+      }
+      
+      if (!formData.lastName) {
+        newErrors.lastName = "Last name is required";
+      }
+      
+      if (!formData.address1) {
+        newErrors.address1 = "Address is required";
+      }
+      
+      if (!formData.city) {
+        newErrors.city = "City is required";
+      }
+      
+      if (!formData.state) {
+        newErrors.state = "State is required";
+      }
+      
+      if (!formData.zip) {
+        newErrors.zip = "Zip code is required";
+      }
+      
+      if (!formData.email) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "Email is invalid";
+      }
+      
+      if (!formData.contactPhone) {
+        newErrors.contactPhone = "Contact phone number is required";
+      }
+      
+      setErrors(newErrors);
+    }
+  }, [formData, isAnonymous, showErrors]);
 
-  const renderLogo = () => (
-    <div className="usa-logo" id="basic-logo">
-      <img 
-        src="/path-to-cms-logo.png" 
-        alt="CMS Logo" 
-        style={{ maxHeight: '40px', marginRight: '10px' }} 
-      />
-      <em className="usa-logo__text">
-        <a href="/" title="Home">ASETT</a>
-      </em>
-    </div>
-  );
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null
+      });
+    }
+  };
 
-  const organizationTypes = [
-    { value: "", label: "--None--" },
-    { value: "provider", label: "Provider" },
-    { value: "payer", label: "Payer/Health Plan" },
-    { value: "clearinghouse", label: "Clearinghouse" },
-    { value: "employer", label: "Employer" },
-    { value: "vendor", label: "Vendor" },
-    { value: "other", label: "Other" }
-  ];
+  const handleAnonymousChange = (value) => {
+    setIsAnonymous(value);
+    
+    if (errors.anonymous) {
+      setErrors({
+        ...errors,
+        anonymous: null
+      });
+    }
+  };
 
-  const states = [
-    { value: "", label: "--None--" },
-    { value: "AL", label: "Alabama" },
-    { value: "AK", label: "Alaska" },
-    // Add all states here
-    { value: "WY", label: "Wyoming" }
-  ];
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Check required fields
+    if (isAnonymous === null) {
+      newErrors.anonymous = "Please select whether you want to remain anonymous";
+    }
+    
+    if (!formData.orgName) {
+      newErrors.orgName = "Organization name is required";
+    }
+    
+    if (!formData.orgPhone) {
+      newErrors.orgPhone = "Organization phone number is required";
+    }
+    
+    if (!formData.title) {
+      newErrors.title = "Title is required";
+    }
+    
+    if (!formData.firstName) {
+      newErrors.firstName = "First name is required";
+    }
+    
+    if (!formData.lastName) {
+      newErrors.lastName = "Last name is required";
+    }
+    
+    if (!formData.address1) {
+      newErrors.address1 = "Address is required";
+    }
+    
+    if (!formData.city) {
+      newErrors.city = "City is required";
+    }
+    
+    if (!formData.state) {
+      newErrors.state = "State is required";
+    }
+    
+    if (!formData.zip) {
+      newErrors.zip = "Zip code is required";
+    }
+    
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    
+    if (!formData.contactPhone) {
+      newErrors.contactPhone = "Contact phone number is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const titleOptions = [
-    { value: "", label: "--None--" },
-    { value: "mr", label: "Mr." },
-    { value: "mrs", label: "Mrs." },
-    { value: "ms", label: "Ms." },
-    { value: "dr", label: "Dr." }
-  ];
+  const handleNext = () => {
+    const isValid = validateForm();
+    
+    if (isValid) {
+      navigate('/fae-details');
+    } else {
+      setShowErrors(true);
+      window.scrollTo(0, 0);
+    }
+  };
+  
+  const handleBack = () => {
+    navigate('/complaint-type');
+  };
+  
+  const handleCancel = () => {
+    navigate('/');
+  };
 
   return (
-    <div>
-      <GovBanner />
-      
-      <Header basic>
-        <div className="usa-nav-container">
-          {renderLogo()}
-          <NavMenuButton onClick={onToggleMobileNav} label="Menu" />
-          <PrimaryNav
-            items={navItems}
-            mobileExpanded={mobileNavOpen}
-            onToggleMobileNav={onToggleMobileNav}
-          >
-            <Button type="button" outline>Register</Button>
-            <Button type="button">Login</Button>
-          </PrimaryNav>
-        </div>
-      </Header>
+    <div className="usa-app">
+      <Header />
 
-      <div className="usa-section">
+      <main id="main-content">
         <GridContainer>
-          <Grid row>
-            <Grid col={12} className="text-right">
-              <p className="font-sans-3xs">Form Approved OMB No. 0938-0948</p>
-            </Grid>
-          </Grid>
+          <FormApproval approvalNumber="0938-0948" />
 
-          <Grid row>
+          <StepIndicator currentStep={2} />
+
+          <Grid row className="margin-top-0">
             <Grid col={12}>
-              <div className="usa-step-indicator">
-                <div className="usa-step-indicator__segments">
-                  <div className="usa-step-indicator__segment usa-step-indicator__segment--complete">
-                    <span className="usa-step-indicator__segment-label">Complaint Type</span>
-                  </div>
-                  <div className="usa-step-indicator__segment usa-step-indicator__segment--current">
-                    <span className="usa-step-indicator__segment-label">Complainant Details</span>
-                  </div>
-                  <div className="usa-step-indicator__segment">
-                    <span className="usa-step-indicator__segment-label">FAE Details</span>
-                  </div>
-                  <div className="usa-step-indicator__segment">
-                    <span className="usa-step-indicator__segment-label">Complaint Details</span>
-                  </div>
-                  <div className="usa-step-indicator__segment">
-                    <span className="usa-step-indicator__segment-label">Review Complaint</span>
-                  </div>
-                  <div className="usa-step-indicator__segment">
-                    <span className="usa-step-indicator__segment-label">Submitted</span>
-                  </div>
+              <FormContainer 
+                containerStyle={formContainerStyle}
+                headerStyle={formHeaderStyle}
+                bodyStyle={formBodyStyle}
+                headerContent={<h2 className="margin-0">Complainant Details</h2>}
+              >
+                {/* <ErrorSummary errors={errors} show={showErrors} /> */}
+                
+                <form>
+                  <AnonymousSection 
+                    isAnonymous={isAnonymous}
+                    onChange={handleAnonymousChange}
+                    error={errors.anonymous}
+                    showError={showErrors}
+                    labelStyle={labelStyle}
+                    radioContainerStyle={radioContainerStyle}
+                    radioStyle={radioStyle}
+                    errorStyle={errorStyle}
+                    requiredMarker={requiredFieldMarker}
+                    formSectionStyle={formSectionStyle}
+                  />
+
+                  <FormSection title="Organization Information">
+                    <FormFieldGroup
+                      id="orgName"
+                      name="orgName"
+                      label="Complainant Organization Name"
+                      value={formData.orgName}
+                      onChange={handleInputChange}
+                      required={true}
+                      error={errors.orgName}
+                      // showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+                    
+                    <FormFieldGroup
+                      id="orgType"
+                      name="orgType"
+                      label="Complainant Organization Type"
+                      type="select"
+                      value={formData.orgType}
+                      onChange={handleInputChange}
+                      options={organizationTypes}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                    />
+                    
+                    <FormFieldGroup
+                      id="orgTypeOther"
+                      name="orgTypeOther"
+                      label="Complainant Organization Type (Other)"
+                      type="text"
+                      value={formData.orgTypeOther}
+                      onChange={handleInputChange}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                    />
+                    
+                    <FormFieldGroup
+                      id="orgRole"
+                      name="orgRole"
+                      label="Complainant Organization Role"
+                      type="text"
+                      value={formData.orgRole}
+                      onChange={handleInputChange}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                    />
+                  </FormSection>
+
+                  <FormSection title="Contact Information">
+                    <FormFieldGroup
+                      id="orgPhone"
+                      name="orgPhone"
+                      label="Complainant Organization Phone Number"
+                      type="tel"
+                      value={formData.orgPhone}
+                      onChange={handleInputChange}
+                      pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                      placeholder="(XXX) XXX-XXXX"
+                      required={true}
+                      error={errors.orgPhone}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="title"
+                      name="title"
+                      label="Complainant Title"
+                      type="select"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      options={titleOptions}
+                      required={true}
+                      error={errors.title}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="firstName"
+                      name="firstName"
+                      label="Complainant First Name"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      required={true}
+                      error={errors.firstName}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="middleInitial"
+                      name="middleInitial"
+                      label="Complainant MI"
+                      type="text"
+                      value={formData.middleInitial}
+                      onChange={handleInputChange}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                    />
+
+                    <FormFieldGroup
+                      id="lastName"
+                      name="lastName"
+                      label="Complainant Last Name"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      required={true}
+                      error={errors.lastName}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="email"
+                      name="email"
+                      label="Complainant Email Address"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required={true}
+                      error={errors.email}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="contactPhone"
+                      name="contactPhone"
+                      label="Complainant Contact Phone Number"
+                      type="tel"
+                      value={formData.contactPhone}
+                      onChange={handleInputChange}
+                      pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                      placeholder="(XXX) XXX-XXXX"
+                      required={true}
+                      error={errors.contactPhone}
+                      showError={showErrors}
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                      errorStyle={errorStyle}
+                      requiredMarker={requiredFieldMarker}
+                    />
+
+                    <FormFieldGroup
+                      id="cellPhone"
+                      name="cellPhone"
+                      label="Complainant Cell Phone Number"
+                      type="tel"
+                      value={formData.cellPhone}
+                      onChange={handleInputChange}
+                      pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                      placeholder="(XXX) XXX-XXXX"
+                      groupStyle={groupStyles}
+                      labelStyle={labelStyle}
+                    />
+                  </FormSection>
+
+                <FormSection title="Address Information">
+                  <FormFieldGroup
+                    id="address1"
+                    name="address1"
+                    label="Complainant Address Line 1"
+                    type="text"
+                    value={formData.address1}
+                    onChange={handleInputChange}
+                    required={true}
+                    error={errors.address1}
+                    showError={showErrors}
+                    groupStyle={groupStyles}
+                    labelStyle={labelStyle}
+                    errorStyle={errorStyle}
+                    requiredMarker={requiredFieldMarker}
+                  />
+                  
+                  <FormFieldGroup
+                    id="address2"
+                    name="address2"
+                    label="Complainant Address Line 2"
+                    type="text"
+                    value={formData.address2}
+                    onChange={handleInputChange}
+                    groupStyle={groupStyles}
+                    labelStyle={labelStyle}
+                  />
+                  
+                  <FormFieldGroup
+                    id="city"
+                    name="city"
+                    label="Complainant City/Town"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required={true}
+                    error={errors.city}
+                    showError={showErrors}
+                    groupStyle={groupStyles}
+                    labelStyle={labelStyle}
+                    errorStyle={errorStyle}
+                    requiredMarker={requiredFieldMarker}
+                  />
+                  
+                  <FormFieldGroup
+                    id="state"
+                    name="state"
+                    label="Complainant State/Territory"
+                    type="select"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    options={states}
+                    required={true}
+                    error={errors.state}
+                    showError={showErrors}
+                    groupStyle={groupStyles}
+                    labelStyle={labelStyle}
+                    errorStyle={errorStyle}
+                    requiredMarker={requiredFieldMarker}
+                  />
+                  
+                  <FormFieldGroup
+                    id="zip"
+                    name="zip"
+                    label="Complainant Zip Code"
+                    type="text"
+                    value={formData.zip}
+                    onChange={handleInputChange}
+                    pattern="[0-9]{5}"
+                    placeholder="55555"
+                    required={true}
+                    error={errors.zip}
+                    showError={showErrors}
+                    groupStyle={groupStyles}
+                    labelStyle={labelStyle}
+                    errorStyle={errorStyle}
+                    requiredMarker={requiredFieldMarker}
+                  />
+                </FormSection>
+
+                <div style={buttonContainerStyle}>
+                  <FormNavigation 
+                    backAction={handleBack}
+                    backLabel="Specify Complaint Type"
+                    nextAction={handleNext}
+                    nextLabel="Filed Against Entity Information >"
+                    cancelAction={handleCancel}
+                  />
                 </div>
-              </div>
-            </Grid>
+              </form>
+            </FormContainer>
           </Grid>
-
-          <Grid row className="margin-top-4">
-            <Grid col={12}>
-              <h1>Complainant Details</h1>
-              <hr className="usa-divider" />
-            </Grid>
           </Grid>
-
-          <Grid row className="margin-top-2">
-            <Grid col={12} desktop={{ col: 4 }}>
-              <Label htmlFor="anonymous">Do you want to remain anonymous during this process?*</Label>
-            </Grid>
-            <Grid col={12} desktop={{ col: 8 }}>
-              <div className="usa-radio__buttons-inline">
-                <div className="usa-radio">
-                  <Radio
-                    id="anonymous-yes"
-                    name="anonymous"
-                    value="yes"
-                    label="Yes"
-                    onChange={() => setIsAnonymous(true)}
-                    checked={isAnonymous === true}
-                  />
-                </div>
-                <div className="usa-radio">
-                  <Radio
-                    id="anonymous-no"
-                    name="anonymous"
-                    value="no"
-                    label="No"
-                    onChange={() => setIsAnonymous(false)}
-                    checked={isAnonymous === false}
-                  />
-                </div>
-              </div>
-            </Grid>
-          </Grid>
-
-          {isAnonymous && (
-            <Grid row className="margin-top-2">
-              <Grid col={12}>
-                <Alert type="info" slim>
-                  <p className="font-sans-sm margin-y-0">
-                    <strong>Disclaimer:</strong> If you select yes, CMS will not share your information with the Filed Against 
-                    Entity (FAE) during the investigation process. However, information provided 
-                    may still be subject to disclosure rules and policies under the Freedom of 
-                    Information Act (FOIA).
-                  </p>
-                </Alert>
-              </Grid>
-            </Grid>
-          )}
-
-          <form className="usa-form">
-            <Grid row className="margin-top-4">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="org-name" requiredMarker>Complainant Organization Name</Label>
-                <TextInput id="org-name" name="org-name" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="org-type" requiredMarker>Complainant Organization Type</Label>
-                <Select id="org-type" name="org-type" items={organizationTypes} />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="org-type-other">Complainant Organization Type (Other)</Label>
-                <TextInput id="org-type-other" name="org-type-other" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="org-role">Complainant Organization Role</Label>
-                <TextInput id="org-role" name="org-role" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="org-phone" requiredMarker>Complainant Organization Phone Number</Label>
-                <TextInput 
-                  id="org-phone" 
-                  name="org-phone" 
-                  type="tel" 
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
-                  placeholder="(XXX) XXX-XXXX" 
-                />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="title" requiredMarker>Complainant Title</Label>
-                <Select id="title" name="title" items={titleOptions} />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="first-name" requiredMarker>Complainant First Name</Label>
-                <TextInput id="first-name" name="first-name" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="middle-initial">Complainant MI</Label>
-                <TextInput id="middle-initial" name="middle-initial" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="last-name" requiredMarker>Complainant Last Name</Label>
-                <TextInput id="last-name" name="last-name" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="address1" requiredMarker>Complainant Address Line 1</Label>
-                <TextInput id="address1" name="address1" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="address2">Complainant Address Line 2</Label>
-                <TextInput id="address2" name="address2" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="city" requiredMarker>Complainant City/Town</Label>
-                <TextInput id="city" name="city" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="state" requiredMarker>Complainant State/Territory</Label>
-                <Select id="state" name="state" items={states} />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="zip" requiredMarker>Complainant Zip Code</Label>
-                <div className="display-flex">
-                  <TextInput 
-                    id="zip" 
-                    name="zip" 
-                    type="text" 
-                    className="maxw-card-lg" 
-                    pattern="[0-9]{5}" 
-                    placeholder="55555" 
-                  />
-                  <TextInput 
-                    id="zip-ext" 
-                    name="zip-ext" 
-                    type="text" 
-                    className="width-8 margin-left-1" 
-                    pattern="[0-9]{4}" 
-                    placeholder="Ext." 
-                  />
-                </div>
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="email" requiredMarker>Complainant Email Address</Label>
-                <TextInput 
-                  id="email" 
-                  name="email" 
-                  type="email" 
-                  placeholder="example@demo.com" 
-                />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="contact-phone" requiredMarker>Complainant Contact Phone Number</Label>
-                <div className="display-flex">
-                  <TextInput 
-                    id="contact-phone" 
-                    name="contact-phone" 
-                    type="tel" 
-                    className="maxw-card-lg" 
-                    pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
-                    placeholder="(XXX) XXX-XXXX" 
-                  />
-                  <TextInput 
-                    id="phone-ext" 
-                    name="phone-ext" 
-                    type="text" 
-                    className="width-8 margin-left-1" 
-                    placeholder="Ext." 
-                  />
-                </div>
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-2">
-              <Grid col={12} desktop={{ col: 6 }}>
-                <Label htmlFor="cell-phone">Complainant Cell Phone Number</Label>
-                <TextInput 
-                  id="cell-phone" 
-                  name="cell-phone" 
-                  type="tel" 
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
-                  placeholder="(XXX) XXX-XXXX" 
-                />
-              </Grid>
-            </Grid>
-
-            <Grid row className="margin-top-5">
-              <Grid col={12} className="display-flex flex-justify">
-                <Button 
-                  type="button" 
-                  outline 
-                  className="margin-right-2"
-                  onClick={() => navigate('/complaint-type')}
-                >
-                  &lt;Specify Complaint Type
-                </Button>
-                <Button 
-                  type="button" 
-                  outline 
-                  className="margin-right-2"
-                  onClick={() => navigate('/')}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="button"
-                  onClick={() => navigate('/fae-details')}
-                >
-                  Filed Against Entity Information&gt;
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
         </GridContainer>
-      </div>
+      </main>
 
-      <Footer
-        primary={
-          <div className="usa-footer__primary-container grid-row padding-x-4">
-            <div className="grid-col-12 desktop:grid-col-4">
-              <a href="#" className="usa-footer__primary-link">Home</a>
-            </div>
-            <div className="grid-col-12 desktop:grid-col-4">
-              <a href="#" className="usa-footer__primary-link">Privacy Policy</a>
-            </div>
-            <div className="grid-col-12 desktop:grid-col-4">
-              <a href="#" className="usa-footer__primary-link">Security Policy</a>
-            </div>
-          </div>
-        }
-      />
+      <Footer />
     </div>
   );
 }
